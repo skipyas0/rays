@@ -7,9 +7,6 @@ from math import pi,inf
 from time import time
 
 """ Simple ray-tracing program
-TODO: Fix bug where laser passes through a wall and 
-bounces on a wall behind it, despite the first wall   
-having smaller t-parameter 
 """
 
 
@@ -53,6 +50,7 @@ class Ray:
         seg_count = 1
         next_point = self.start
         next_vect = self.start
+
         while seg_count < self.limit:
             least_t = inf
             # Go through all segments and find nearest mirror surface and reflection on it
@@ -75,7 +73,7 @@ class Ray:
             current_start = next_point
             if seg_count < self.limit:
                 # Prepare next segment
-                self.ray_segments.append(Segment(inters, inters))
+                self.ray_segments.append(Segment(next_point, next_point))
                 seg_count += 1
             
 
@@ -94,7 +92,6 @@ class Ray:
 
         if u < 0 or u > 1 or t < 1e-6:
             # u not in (0,1) means the line DOESNT intersect the segment
-            # ? maybe this causes the bug TODO: try playinh with error margins in this condition
             return None
         intersection_point = check_numerical(current_start + t * current_vector)
         seg_normal = np.array([[0,1],[-1,0]]) @ seg_dir
@@ -145,6 +142,7 @@ def check_numerical(value: np.array, wanted_val: float = 0, margin: float = 1e-8
 
 
 def create_saw(start = np.array, end = np.array, num = int, depth = int) -> list[Segment]:
+    """ Creates saw-like shape to act as an obstacle, generates segments """
     segments = []
     ln = np.linalg.norm(end-start)
     if num == 0 or all(end-start < 1e-8):
@@ -158,6 +156,7 @@ def create_saw(start = np.array, end = np.array, num = int, depth = int) -> list
         nx = nx + step
         segments.append(Segment(tip, nx))
     return segments
+
 
 if __name__ == "__main__" :
 
